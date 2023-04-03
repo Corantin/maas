@@ -1,5 +1,9 @@
-const { ethers } = require("hardhat");
-const { expect } = require("chai");
+import { ethers } from "hardhat";
+import { expect } from "chai";
+import { Contract } from 'ethers';
+import { Address } from 'hardhat-deploy/dist/types';
+import { Provider } from '@ethersproject/abstract-provider';
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 describe("MultiSigWallet Test", () => {
   const CHAIN_ID = 1; // I guess this number doesn't really matter
@@ -10,6 +14,18 @@ describe("MultiSigWallet Test", () => {
 
   // I'm not sure about this one either
   const CONTRACT_NAME = "Test contract name";
+
+  let getAddSignerHash: (arg0: any, arg1: number) => any;
+  let getRemoveSignerHash: (arg0: any, arg1: number) => any;
+  let getAddSignerCallData: (arg0: any, arg1: number) => any;
+  let getRemoveSignerCallData: (arg0: any, arg1: number) => any;
+  let getSortedOwnerAddressesArray: () => any;
+  let getSignaturesArray: (arg0: any) => any;
+  let MultiSigWallet: Contract;
+  let MultiSigFactory: Contract;
+  let provider: Provider;
+
+  let [owner, addr1, addr2]: any[] = [];
 
   beforeEach(async function () {
     [owner, addr1, addr2] = await ethers.getSigners();
@@ -100,7 +116,7 @@ describe("MultiSigWallet Test", () => {
     };
 
     getSortedOwnerAddressesArray = async () => {
-      let ownerAddressesArray = [];
+      let ownerAddressesArray: Address[] = [];
 
       for (let i = 0; ; i++) {
         try {
@@ -114,15 +130,15 @@ describe("MultiSigWallet Test", () => {
     };
 
     getSignaturesArray = async (hash) => {
-      let signaturesArray = [];
+      let signaturesArray: any[] = [];
 
       let sortedOwnerAddressesArray = await getSortedOwnerAddressesArray();
 
-      for (ownerAddress of sortedOwnerAddressesArray) {
-        let ownerProvider = (await ethers.getSigner(owner.address)).provider;
+      for (let ownerAddress of sortedOwnerAddressesArray) {
+        let ownerProvider = (await ethers.getSigner(owner.address)).provider as any;
 
         signaturesArray.push(
-          await ownerProvider.send("personal_sign", [hash, ownerAddress])
+          await ownerProvider?.send("personal_sign", [hash, ownerAddress])
         );
       }
 

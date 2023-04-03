@@ -3,15 +3,16 @@ const { utils } = require("ethers");
 const fs = require("fs");
 const chalk = require("chalk");
 
-require("@nomiclabs/hardhat-waffle");
-require("@tenderly/hardhat-tenderly");
+import "@nomiclabs/hardhat-waffle";
+import "@tenderly/hardhat-tenderly";
+import "hardhat-deploy";
+import "hardhat-gas-reporter";
+import "hardhat-abi-exporter";
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-etherscan";
+import "@matterlabs/hardhat-zksync-solc";
+import "@matterlabs/hardhat-zksync-deploy";
 
-require("hardhat-deploy");
-require("hardhat-gas-reporter");
-require("hardhat-abi-exporter");
-
-require("@nomiclabs/hardhat-ethers");
-require("@nomiclabs/hardhat-etherscan");
 
 const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 
@@ -33,7 +34,7 @@ const mainnetGwei = 21;
 
 function mnemonic() {
   try {
-    return fs.readFileSync("./mnemonic.txt").toString().trim();
+    return process.env.PRIVATE_KEY;
   } catch (e) {
     if (defaultNetwork !== "localhost") {
       console.log(
@@ -44,7 +45,7 @@ function mnemonic() {
   return "";
 }
 
-module.exports = {
+export default {
   defaultNetwork,
 
   /**
@@ -72,6 +73,7 @@ module.exports = {
         (you can put in a mnemonic here to set the deployer locally)
 
       */
+      zksync: false,
     },
     rinkeby: {
       url: "https://rinkeby.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
@@ -79,6 +81,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     kovan: {
       url: "https://kovan.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
@@ -86,6 +89,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     mainnet: {
       url: "https://mainnet.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
@@ -94,6 +98,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     ropsten: {
       url: "https://ropsten.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
@@ -101,6 +106,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     goerli: {
       url: "https://goerli.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
@@ -108,6 +114,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     xdai: {
       url: "https://rpc.xdaichain.com/",
@@ -115,24 +122,28 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     gnosis: {
       url: "https://rpc.gnosischain.com",
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     canto: {
       url: "https://canto.slingshot.finance",
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     sepolia: {
       url: "https://rpc.sepolia.org",
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     fantom: {
       url: "https://rpcapi.fantom.network",
@@ -140,6 +151,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     testnetFantom: {
       url: "https://rpc.testnet.fantom.network",
@@ -147,6 +159,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     polygon: {
       url: "https://polygon-rpc.com",
@@ -154,6 +167,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     mumbai: {
       url: "https://rpc-mumbai.maticvigil.com",
@@ -162,6 +176,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     matic: {
       url: "https://rpc-mainnet.maticvigil.com/",
@@ -169,6 +184,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     optimism: {
       url: "https://mainnet.optimism.io",
@@ -178,6 +194,7 @@ module.exports = {
       companionNetworks: {
         l1: "mainnet",
       },
+      zksync: false,
     },
     kovanOptimism: {
       url: "https://kovan.optimism.io",
@@ -187,6 +204,7 @@ module.exports = {
       companionNetworks: {
         l1: "kovan",
       },
+      zksync: false,
     },
     localOptimism: {
       url: "http://localhost:8545",
@@ -196,6 +214,7 @@ module.exports = {
       companionNetworks: {
         l1: "localOptimismL1",
       },
+      zksync: false,
     },
     localOptimismL1: {
       url: "http://localhost:9545",
@@ -206,6 +225,7 @@ module.exports = {
       companionNetworks: {
         l2: "localOptimism",
       },
+      zksync: false,
     },
     localAvalanche: {
       url: "http://localhost:9650/ext/bc/C/rpc",
@@ -214,6 +234,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     fujiAvalanche: {
       url: "https://api.avax-test.network/ext/bc/C/rpc",
@@ -222,6 +243,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     mainnetAvalanche: {
       url: "https://api.avax.network/ext/bc/C/rpc",
@@ -230,6 +252,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     testnetHarmony: {
       url: "https://api.s0.b.hmny.io",
@@ -238,6 +261,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     mainnetHarmony: {
       url: "https://api.harmony.one",
@@ -246,6 +270,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     moonbeam: {
       url: 'https://rpc.api.moonbeam.network',
@@ -253,6 +278,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     moonriver: {
       url: 'https://rpc.api.moonriver.moonbeam.network',
@@ -260,6 +286,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     moonbaseAlpha: {
       url: 'https://rpc.api.moonbase.moonbeam.network',
@@ -267,6 +294,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     moonbeamDevNode: {
       url: 'http://127.0.0.1:9933',
@@ -274,6 +302,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     godwoken: {
       url: 'https://godwoken-testnet-v1.ckbapp.dev',
@@ -281,6 +310,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     arbitrum: {
       url: 'https://arb1.arbitrum.io/rpc',
@@ -288,6 +318,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     rinkebyArbitrum: {
       url: 'https://rinkeby.arbitrum.io/rpc',
@@ -295,6 +326,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
     },
     devnetArbitrum: {
       url: 'https://nitro-devnet.arbitrum.io/rpc',
@@ -302,6 +334,15 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      zksync: false,
+    },
+    zkTestnet: {
+      url: "https://zksync2-testnet.zksync.dev",
+      ethNetwork:
+        "https://eth-goerli.g.alchemy.com/v2/" + process.env.INFURA_ID, // or a Goerli RPC endpoint from Infura/Alchemy/Chainstack etc.
+      zksync: true,
+      verifyURL:
+        "https://zksync2-testnet-explorer.zksync.dev/contract_verification",
     },
   },
   solidity: {
@@ -336,7 +377,7 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      mainnet: "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW",
+      mainnet: process.env.ETHERSCAN_API_KEY,
       // add other network's API key here
     },
   },
@@ -348,6 +389,13 @@ module.exports = {
     only: [],
     spacing: 2,
     pretty: false,
+  },
+  zksolc: {
+    version: "1.3.5",
+    compilerSource: "binary",
+    settings: {
+      libraries: {},
+    },
   },
 };
 
@@ -401,20 +449,20 @@ task("fundedwallet", "Create a wallet (pk) link and fund it with deployer?")
       deployerWallet = deployerWallet.connect(ethers.provider);
       console.log(
         "💵 Sending " +
-          amount +
-          " ETH to " +
-          randomWallet.address +
-          " using deployer account"
+        amount +
+        " ETH to " +
+        randomWallet.address +
+        " using deployer account"
       );
       const sendresult = await deployerWallet.sendTransaction(tx);
       console.log("\n" + url + "/pk#" + privateKey + "\n");
     } else {
       console.log(
         "💵 Sending " +
-          amount +
-          " ETH to " +
-          randomWallet.address +
-          " using local node"
+        amount +
+        " ETH to " +
+        randomWallet.address +
+        " using local node"
       );
       console.log("\n" + url + "/pk#" + privateKey + "\n");
       return send(ethers.provider.getSigner(), tx);
@@ -444,8 +492,8 @@ task(
       "0x" + EthUtil.privateToAddress(wallet._privKey).toString("hex");
     console.log(
       "🔐 Account Generated as " +
-        address +
-        " and set as mnemonic in packages/hardhat"
+      address +
+      " and set as mnemonic in packages/hardhat"
     );
     console.log(
       "💬 Use 'yarn run account' to get more information about the deployment account."
@@ -504,12 +552,12 @@ task(
 
     console.log(
       "⛏  Account Mined as " +
-        address +
-        " and set as mnemonic in packages/hardhat"
+      address +
+      " and set as mnemonic in packages/hardhat"
     );
     console.log(
       "📜 This will create the first contract: " +
-        chalk.magenta("0x" + contract_address)
+      chalk.magenta("0x" + contract_address)
     );
     console.log(
       "💬 Use 'yarn run account' to get more information about the deployment account."
