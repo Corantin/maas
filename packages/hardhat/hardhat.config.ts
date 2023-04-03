@@ -1,7 +1,7 @@
 require("dotenv").config();
-const { utils } = require("ethers");
-const fs = require("fs");
-const chalk = require("chalk");
+import { utils } from "ethers";
+import fs from "fs";
+import chalk from "chalk";
 
 import "@nomiclabs/hardhat-waffle";
 import "@tenderly/hardhat-tenderly";
@@ -10,9 +10,12 @@ import "hardhat-gas-reporter";
 import "hardhat-abi-exporter";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
+
+// ZkSync plugins
 import "@matterlabs/hardhat-zksync-solc";
 import "@matterlabs/hardhat-zksync-deploy";
-
+import "@matterlabs/hardhat-zksync-verify";
+import { HardhatUserConfig, HttpNetworkConfig } from "hardhat/types";
 
 const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 
@@ -34,7 +37,7 @@ const mainnetGwei = 21;
 
 function mnemonic() {
   try {
-    return process.env.PRIVATE_KEY;
+    return fs.readFileSync("./mnemonic.txt").toString().trim();
   } catch (e) {
     if (defaultNetwork !== "localhost") {
       console.log(
@@ -55,7 +58,7 @@ export default {
    */
   gasReporter: {
     currency: "USD",
-    coinmarketcap: process.env.COINMARKETCAP || null,
+    coinmarketcap: process.env.COINMARKETCAP,
   },
 
   // if you want to deploy to a testnet, mainnet, or xdai, you will need to configure:
@@ -244,7 +247,7 @@ export default {
         mnemonic: mnemonic(),
       },
       zksync: false,
-    },
+    } as HttpNetworkConfig,
     mainnetAvalanche: {
       url: "https://api.avax.network/ext/bc/C/rpc",
       gasPrice: 225000000000,
@@ -273,7 +276,7 @@ export default {
       zksync: false,
     },
     moonbeam: {
-      url: 'https://rpc.api.moonbeam.network',
+      url: "https://rpc.api.moonbeam.network",
       chainId: 1284,
       accounts: {
         mnemonic: mnemonic(),
@@ -281,7 +284,7 @@ export default {
       zksync: false,
     },
     moonriver: {
-      url: 'https://rpc.api.moonriver.moonbeam.network',
+      url: "https://rpc.api.moonriver.moonbeam.network",
       chainId: 1285,
       accounts: {
         mnemonic: mnemonic(),
@@ -289,7 +292,7 @@ export default {
       zksync: false,
     },
     moonbaseAlpha: {
-      url: 'https://rpc.api.moonbase.moonbeam.network',
+      url: "https://rpc.api.moonbase.moonbeam.network",
       chainId: 1287,
       accounts: {
         mnemonic: mnemonic(),
@@ -297,7 +300,7 @@ export default {
       zksync: false,
     },
     moonbeamDevNode: {
-      url: 'http://127.0.0.1:9933',
+      url: "http://127.0.0.1:9933",
       chainId: 1281,
       accounts: {
         mnemonic: mnemonic(),
@@ -305,7 +308,7 @@ export default {
       zksync: false,
     },
     godwoken: {
-      url: 'https://godwoken-testnet-v1.ckbapp.dev',
+      url: "https://godwoken-testnet-v1.ckbapp.dev",
       chainId: 71401,
       accounts: {
         mnemonic: mnemonic(),
@@ -313,7 +316,7 @@ export default {
       zksync: false,
     },
     arbitrum: {
-      url: 'https://arb1.arbitrum.io/rpc',
+      url: "https://arb1.arbitrum.io/rpc",
       chainId: 42161,
       accounts: {
         mnemonic: mnemonic(),
@@ -321,7 +324,7 @@ export default {
       zksync: false,
     },
     rinkebyArbitrum: {
-      url: 'https://rinkeby.arbitrum.io/rpc',
+      url: "https://rinkeby.arbitrum.io/rpc",
       chainId: 421611,
       accounts: {
         mnemonic: mnemonic(),
@@ -329,7 +332,7 @@ export default {
       zksync: false,
     },
     devnetArbitrum: {
-      url: 'https://nitro-devnet.arbitrum.io/rpc',
+      url: "https://nitro-devnet.arbitrum.io/rpc",
       chainId: 421612,
       accounts: {
         mnemonic: mnemonic(),
@@ -372,14 +375,14 @@ export default {
   },
   namedAccounts: {
     deployer: {
-      default: 0, // here this will by default take the first account as deployer
+      default: 0,
+      100: process.env.DEPLOYER_ADDRESS!,
+      goerli: process.env.DEPLOYER_ADDRESS!,
+      zkTestnet: process.env.DEPLOYER_ADDRESS!,
     },
   },
   etherscan: {
-    apiKey: {
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      // add other network's API key here
-    },
+    apiKey: process.env.ETHERSCAN_API_KEY || "",
   },
   abiExporter: {
     path: "../react-app/src/contracts/ABI",
@@ -449,20 +452,20 @@ task("fundedwallet", "Create a wallet (pk) link and fund it with deployer?")
       deployerWallet = deployerWallet.connect(ethers.provider);
       console.log(
         "💵 Sending " +
-        amount +
-        " ETH to " +
-        randomWallet.address +
-        " using deployer account"
+          amount +
+          " ETH to " +
+          randomWallet.address +
+          " using deployer account"
       );
       const sendresult = await deployerWallet.sendTransaction(tx);
       console.log("\n" + url + "/pk#" + privateKey + "\n");
     } else {
       console.log(
         "💵 Sending " +
-        amount +
-        " ETH to " +
-        randomWallet.address +
-        " using local node"
+          amount +
+          " ETH to " +
+          randomWallet.address +
+          " using local node"
       );
       console.log("\n" + url + "/pk#" + privateKey + "\n");
       return send(ethers.provider.getSigner(), tx);
@@ -492,8 +495,8 @@ task(
       "0x" + EthUtil.privateToAddress(wallet._privKey).toString("hex");
     console.log(
       "🔐 Account Generated as " +
-      address +
-      " and set as mnemonic in packages/hardhat"
+        address +
+        " and set as mnemonic in packages/hardhat"
     );
     console.log(
       "💬 Use 'yarn run account' to get more information about the deployment account."
@@ -552,12 +555,12 @@ task(
 
     console.log(
       "⛏  Account Mined as " +
-      address +
-      " and set as mnemonic in packages/hardhat"
+        address +
+        " and set as mnemonic in packages/hardhat"
     );
     console.log(
       "📜 This will create the first contract: " +
-      chalk.magenta("0x" + contract_address)
+        chalk.magenta("0x" + contract_address)
     );
     console.log(
       "💬 Use 'yarn run account' to get more information about the deployment account."
