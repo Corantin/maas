@@ -1,29 +1,46 @@
 // deploy/00_deploy_your_contract.js
 
+import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
+import { Contract } from "ethers";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { Wallet } from "zksync-web3";
+
 const { ethers } = require("hardhat");
 
 const localChainId = "31337";
 
-// const sleep = (ms) =>
-//   new Promise((r) =>
-//     setTimeout(() => {
-//       console.log(`waited for ${(ms / 1000).toFixed(3)} seconds`);
-//       r();
-//     }, ms)
-//   );
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
-  const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
-  const chainId = await getChainId();
+const verificationContractName = "contracts/mocks_HoneyTest.sol:HoneyTestToken";
+
+export default async (hre: HardhatRuntimeEnvironment) => {
+  const { deploy } = hre.deployments;
+  const { deployer } = await hre.getNamedAccounts();
+  const chainId = await hre.getChainId();
 
   console.log("chainId: ", chainId);
 
-  const MultiSigFactoryDeployed = await deploy("MultiSigFactory", {
-    from: deployer,
-    log: true,
-    // waitConfirmations: 5,
-  });
+  let multiSigFactoryContract: Contract;
+
+  if (hre.network.zksync) {
+    //   console.log("Deploying HoneyTest on zkSync...", { deployer });
+    const wallet = new Wallet(process.env.PRIVATE_KEY!);
+    console.log("Wallet initialized");
+    const zkDeployer = new Deployer(hre, wallet);
+    console.log("Deployer initialized");
+
+    const tokenArtifact = await zkDeployer.loadArtifact(contractName);
+    console.log("TokenArtifact loaded");
+  } else {
+    const factoryDeployResult = await deploy("MultiSigFactory", {
+      from: deployer,
+      log: true,
+    });
+    multiSigFactoryContract = new Contract(
+      factoryDeployResult.address,
+      factoryDeployResult.abi
+    );
+  }
 
   // const MultiSigWalletDeployed = await deploy("MultiSigWallet", {
   //   from: deployer,
@@ -44,7 +61,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   console.log(
     "MultiSig factory deployed at =>",
-    MultiSigFactoryDeployed.address
+    multiSigFactoryContract.address
   );
 
   // Getting a previously deployed contract
